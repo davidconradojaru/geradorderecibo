@@ -51,34 +51,64 @@
         var canvas = document.getElementById('canvasAssinatura');
         var ctx = canvas.getContext('2d');
         var desenhando = false;
-        
-        canvas.addEventListener('mousedown', function(e) {
+    
+        // Adiciona manipuladores de eventos de toque para dispositivos móveis
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // Impede o comportamento padrão do toque (como zoom)
+            var touch = e.touches[0];
+            var rect = canvas.getBoundingClientRect();
             desenhando = true;
             ctx.beginPath();
-            ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
         });
-        
-        canvas.addEventListener('mousemove', function(e) {
+    
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault(); // Impede o comportamento padrão do toque (como rolar)
+            var touch = e.touches[0];
+            var rect = canvas.getBoundingClientRect();
             if (desenhando) {
-                ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
                 ctx.stroke();
             }
         });
-        
+    
+        canvas.addEventListener('touchend', function(e) {
+            e.preventDefault(); // Impede o comportamento padrão do toque
+            desenhando = false;
+            capturarAssinatura();
+        });
+    
+        // Adiciona manipuladores de eventos de mouse para computadores
+        canvas.addEventListener('mousedown', function(e) {
+            var rect = canvas.getBoundingClientRect();
+            desenhando = true;
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        });
+    
+        canvas.addEventListener('mousemove', function(e) {
+            var rect = canvas.getBoundingClientRect();
+            if (desenhando) {
+                ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+                ctx.stroke();
+            }
+        });
+    
         canvas.addEventListener('mouseup', function() {
             desenhando = false;
             capturarAssinatura();
         });
-        
+    
         function limparAssinatura() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             document.getElementById('assinatura').value = '';
         }
-        
+    
         function capturarAssinatura() {
             var dataURL = canvas.toDataURL();
             document.getElementById('assinatura').value = dataURL;
         }
     </script>
+    
 </body>
 </html>
